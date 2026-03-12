@@ -197,7 +197,7 @@
   <option value="CLB_01632">
   <option value="CLB_01648">
   <option value="CLB_01683">
-  
+  <option value="CLB_01690">
 </datalist>
       </div>
 
@@ -238,13 +238,117 @@
   const successMsg = document.getElementById("successMsg");
   const errorMsg = document.getElementById("errorMsg");
 
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
+  const submitBtn = document.querySelector(".btn-submit");
 
+	let sending = false;
+
+	// DANH SÁCH CLB HỢP LỆ
+	const validCLB = [
+
+	  "CLB_00201",
+	  "CLB_00202",
+	  "CLB_00215",
+	  "CLB_00260",
+	  "CLB_00383",
+	  "CLB_00593",
+	  "CLB_00603",
+	  "CLB_00604",
+	  "CLB_00605",
+	  "CLB_00606",
+	  "CLB_00607",
+	  "CLB_00608",
+	  "CLB_00615",
+	  "CLB_00654",
+	  "CLB_00655",
+	  "CLB_00656",
+	  "CLB_00657",
+	  "CLB_00658",
+	  "CLB_00659",
+	  "CLB_00660",
+	  "CLB_00661",
+	  "CLB_00662",
+	  "CLB_00782",
+	  "CLB_00818",
+	  "CLB_00819",
+	  "CLB_00820",
+	  "CLB_00821",
+	  "CLB_00842",
+	  "CLB_00843",
+	  "CLB_00844",
+	  "CLB_00845",
+	  "CLB_00846",
+	  "CLB_00847",
+	  "CLB_00848",
+	  "CLB_00849",
+	  "CLB_00850",
+	  "CLB_00851",
+	  "CLB_00897",
+	  "CLB_00898",
+	  "CLB_00899",
+	  "CLB_00900",
+	  "CLB_00901",
+	  "CLB_00906",
+	  "CLB_00907",
+	  "CLB_00939",
+	  "CLB_00940",
+	  "CLB_00950",
+	  "CLB_00951",
+	  "CLB_00953",
+	  "CLB_00954",
+	  "CLB_00955",
+	  "CLB_00988",
+	  "CLB_01007",
+	  "CLB_01009",
+	  "CLB_01016",
+	  "CLB_01081",
+	  "CLB_01103",
+	  "CLB_01267",
+	  "CLB_01353",
+	  "CLB_01369",
+	  "CLB_01371",
+	  "CLB_01453",
+	  "CLB_01535",
+	  "CLB_01587",
+	  "CLB_01632",
+	  "CLB_01648",
+	  "CLB_01683",
+	  "CLB_01690"
+	];
+
+	// KIỂM TRA SỐ ĐIỆN THOẠI
+	function isValidPhone(phone){
+    	const regex = /^(0[0-9]{9})$/;
+    	return regex.test(phone);
+	}
+
+    form.addEventListener("submit", function(e) {
+    e.preventDefault();
+if(sending) return; // chống bấm nhiều lần
     successMsg.style.display = "none";
     errorMsg.style.display = "none";
 
     const formData = new FormData(form);
+
+    const ma_clb = formData.get("ma_clb").trim();
+    const phone = formData.get("dien_thoai").trim();
+
+    // KIỂM TRA MÃ CLB
+    if(!validCLB.includes(ma_clb)){
+        errorMsg.innerText="Mã CLB không đúng. Vui lòng chọn trong danh sách.";
+        errorMsg.style.display="block";
+        return;
+    }
+
+    // KIỂM TRA ĐIỆN THOẠI
+    if(!isValidPhone(phone)){
+        errorMsg.innerText="Số điện thoại không đúng. Vui lòng nhập 10 số bắt đầu bằng 0.";
+        errorMsg.style.display="block";
+        return;
+    }
+
+    sending = true;
+    submitBtn.disabled = true;
+    submitBtn.innerText = "ĐANG GỬI...";
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -258,7 +362,17 @@
     })
     .catch(err => {
       console.error(err);
+      errorMsg.innerText="Gửi dữ liệu thất bại. Vui lòng thử lại.";
       errorMsg.style.display = "block";
+    })
+    .finally(()=>{
+
+        setTimeout(()=>{
+            sending=false;
+            submitBtn.disabled=false;
+            submitBtn.innerText="XÁC NHẬN ĐĂNG KÝ";
+        },3000);
+
     });
   });
 </script>
