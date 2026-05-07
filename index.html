@@ -360,6 +360,36 @@ errorMsg.style.display="block";
 return;
 }
 
+/* ===== KIỂM TRA NGÀY THI ===== */
+
+const ngayThiValue=formData.get("ngay_thi");
+
+const ngayThi=new Date(ngayThiValue);
+const today=new Date();
+
+/* Xóa giờ để tính đúng số ngày */
+today.setHours(0,0,0,0);
+ngayThi.setHours(0,0,0,0);
+
+/* Tính chênh lệch ngày */
+const diffTime=ngayThi-today;
+const diffDays=diffTime/(1000*60*60*24);
+
+/* Không cho đăng ký nếu dưới 15 ngày */
+
+if(diffDays<15){
+
+errorMsg.innerText=
+"Ngày thi phải cách ngày đăng ký tối thiểu 15 ngày.";
+
+errorMsg.style.display="block";
+
+document.querySelector('input[name="ngay_thi"]').focus();
+
+return;
+
+}
+
 sending=true;
 
 submitBtn.disabled=true;
