@@ -283,7 +283,7 @@ grid-template-columns:1fr;
 
 <div class="material-field">
 <span class="material-icons">schedule</span>
-<input type="time" name="gio_thi" placeholder=" " required>
+<input type="time" name="gio_thi" min="08:00" max="20:00" placeholder=" " required>
 <label>Thời gian *</label>
 </div>
 
@@ -389,7 +389,22 @@ document.querySelector('input[name="ngay_thi"]').focus();
 return;
 
 }
+/* ===== KIỂM TRA GIỜ THI ===== */
 
+const gioThi=formData.get("gio_thi");
+
+if(gioThi < "08:00" || gioThi > "20:00"){
+
+errorMsg.innerText=
+"Giờ thi chỉ được phép từ 08:00 đến 20:00.";
+
+errorMsg.style.display="block";
+
+document.querySelector('input[name="gio_thi"]').focus();
+
+return;
+
+}
 sending=true;
 
 submitBtn.disabled=true;
