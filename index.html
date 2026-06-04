@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -14,17 +15,17 @@ body{
 font-family:Arial,Helvetica,sans-serif;
 background:#f4f6fb;
 margin:0;
-padding:30px;
+padding:10px;
 }
 
 /* CONTAINER */
 
 .container{
-max-width:800px;
+max-width:600px;
 margin:auto;
 background:white;
 border-radius:16px;
-padding:40px;
+padding:20px;
 box-shadow:0 12px 30px rgba(0,0,0,0.08);
 }
 
@@ -33,18 +34,18 @@ box-shadow:0 12px 30px rgba(0,0,0,0.08);
 .header{
 display:flex;
 align-items:center;
-gap:20px;
+gap:10px;
 margin-bottom:30px;
 }
 
 .logo{
-height:90px;
+height:150px;
 }
 
 .title{
 flex:1;
 text-align:center;
-font-size:32px;
+font-size:40px;
 font-weight:700;
 letter-spacing:1px;
 }
@@ -91,8 +92,8 @@ padding:0 4px;
 .material-icons{
 position:absolute;
 left:14px;
-top:18px;
-font-size:20px;
+top:14px;
+font-size:22px;
 color:#666;
 }
 
@@ -118,7 +119,7 @@ width:100%;
 padding:16px;
 border:none;
 border-radius:12px;
-font-size:16px;
+font-size:22px;
 font-weight:bold;
 cursor:pointer;
 background:linear-gradient(90deg,#2563eb,#111827);
@@ -307,7 +308,7 @@ grid-template-columns:1fr;
 <label>Thông tin liên hệ</label>
 </div>
 
-<button class="btn-submit" type="submit">ĐĂNG KÝ</button>
+<button class="btn-submit" type="submit">XÁC NHẬN ĐĂNG KÝ</button>
 
 <div class="success" id="successMsg">Đăng ký thành công! Dữ liệu đã được gửi.</div>
 <div class="error" id="errorMsg">Gửi dữ liệu thất bại. Vui lòng thử lại.</div>
@@ -387,8 +388,15 @@ errorMsg.style.display="block";
 document.querySelector('input[name="ngay_thi"]').focus();
 
 return;
-
 }
+
+if(diffDays > 60){
+errorMsg.innerText =
+"Ngày thi không được vượt quá 60 ngày.";
+errorMsg.style.display="block";
+return;
+}
+
 /* ===== KIỂM TRA GIỜ THI ===== */
 
 const gioThi=formData.get("gio_thi");
