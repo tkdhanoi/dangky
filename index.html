@@ -234,57 +234,50 @@ grid-template-columns:1fr;
 </div>
 
 <script>
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzB5CkEWNAJrxOP-qC9p-yZI2mjVi9N5HiQ4FsloVrRmnD26B5ahTv-nqJPnFiZb-gt/exec";
-const form=document.getElementById("registerForm");
-const successMsg=document.getElementById("successMsg");
-const errorMsg=document.getElementById("errorMsg");
-const submitBtn=document.querySelector(".btn-submit");
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB5CkEWNAJrxOP-qC9p-yZI2mjVi9N5HiQ4FsloVrRmnD26B5ahTv-nqJPnFiZb-gt/exec";
 
-let sending=false;
+// Link CSV lấy trực tiếp từ cột A sheet ID_CLUB (gid=1847827149)
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1QqcljNVJX5hVpyPc6o5xL4ExIDuRnEwxEZKCC1sqCx0/gviz/tq?tqx=out:csv&sheet=ID_CLUB";
+
+const form = document.getElementById("registerForm");
+const successMsg = document.getElementById("successMsg");
+const errorMsg = document.getElementById("errorMsg");
+const submitBtn = document.querySelector(".btn-submit");
+
+let sending = false;
 let validCLB = [];
+
 /* =========================================
-   TẢI DANH SÁCH CLB
+   TẢI DANH SÁCH CLB TỪ APPS SCRIPT
 ========================================= */
-async function loadCLBList(){
-    try{
-        const response = await fetch("clb-list.json", {
-            cache: "no-cache"
-        });
-        if(!response.ok){
-            throw new Error(
-                "Không thể tải file danh sách CLB."
-            );
+async function loadCLBList() {
+    try {
+        // Tải danh sách trực tiếp qua GET request từ Apps Script
+        const response = await fetch(SCRIPT_URL, { method: "GET" });
+        if (!response.ok) {
+            throw new Error("Không thể kết nối đến server Apps Script.");
         }
+        
         const data = await response.json();
-        if(!Array.isArray(data)){
-            throw new Error(
-                "Định dạng file danh sách CLB không hợp lệ."
-            );
+        if (!Array.isArray(data)) {
+            throw new Error("Dữ liệu trả về không hợp lệ.");
         }
-        validCLB = data
-            .map(clb => String(clb).trim())
-            .filter(clb => clb !== "");
-        const clbList =
-            document.getElementById("clbList");
+
+        validCLB = data;
+
+        const clbList = document.getElementById("clbList");
         clbList.innerHTML = "";
+        
         validCLB.forEach(clb => {
-            const option =
-                document.createElement("option");
+            const option = document.createElement("option");
             option.value = clb;
             clbList.appendChild(option);
         });
-        console.log(
-            "Đã tải danh sách CLB:",
-            validCLB.length,
-            "mã"
-        );
-    }catch(error){
-        console.error(
-            "Lỗi tải danh sách CLB:",
-            error
-        );
-        errorMsg.innerText =
-            "Không thể tải danh sách mã CLB. Vui lòng thử lại.";
+
+        console.log("Đã tải danh sách CLB:", validCLB.length, "mã");
+    } catch(error) {
+        console.error("Lỗi tải danh sách CLB:", error);
+        errorMsg.innerText = "Không thể tải danh sách CLB. Vui lòng thử lại.";
         errorMsg.style.display = "block";
     }
 }
@@ -292,121 +285,112 @@ async function loadCLBList(){
    KHỞI ĐỘNG
 ========================================= */
 loadCLBList();
+
 /* =========================================
    KIỂM TRA SỐ ĐIỆN THOẠI
 ========================================= */
-function isValidPhone(phone){
-return /^(0[0-9]{9})$/.test(phone);
+function isValidPhone(phone) {
+    return /^(0[0-9]{9})$/.test(phone);
 }
+
 /* =========================================
    SUBMIT
 ========================================= */
-form.addEventListener("submit",function(e){
-e.preventDefault();
-if(sending) return;
-successMsg.style.display="none";
-errorMsg.style.display="none";
-const formData=new FormData(form);
-const ma_clb=formData.get("ma_clb").trim();
-const phone=formData.get("dien_thoai").trim();
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    if(sending) return;
+    
+    successMsg.style.display = "none";
+    errorMsg.style.display = "none";
+    
+    const formData = new FormData(form);
+    const ma_clb = formData.get("ma_clb").trim();
+    const phone = formData.get("dien_thoai").trim();
 
-/* KIỂM TRA DANH SÁCH CLB */
-if(validCLB.length === 0){
-    errorMsg.innerText =
-        "Danh sách CLB chưa được tải. Vui lòng tải lại trang.";
-    errorMsg.style.display="block";
-    return;
-}
+    /* KIỂM TRA DANH SÁCH CLB */
+    if(validCLB.length === 0) {
+        errorMsg.innerText = "Danh sách CLB chưa được tải. Vui lòng tải lại trang.";
+        errorMsg.style.display = "block";
+        return;
+    }
 
-/* KIỂM TRA MÃ CLB */
-if(!validCLB.includes(ma_clb)){
-errorMsg.innerText="Mã CLB không đúng. Vui lòng chọn trong danh sách.";
-errorMsg.style.display="block";
-return;
-}
+    /* KIỂM TRA MÃ CLB */
+    if(!validCLB.includes(ma_clb)) {
+        errorMsg.innerText = "Mã CLB không đúng. Vui lòng chọn trong danh sách.";
+        errorMsg.style.display = "block";
+        return;
+    }
 
-/* KIỂM TRA ĐIỆN THOẠI */
-if(!isValidPhone(phone)){
-errorMsg.innerText="Số điện thoại không đúng. Vui lòng nhập 10 số bắt đầu bằng 0.";
-errorMsg.style.display="block";
-return;
-}
+    /* KIỂM TRA ĐIỆN THOẠI */
+    if(!isValidPhone(phone)) {
+        errorMsg.innerText = "Số điện thoại không đúng. Vui lòng nhập 10 số bắt đầu bằng 0.";
+        errorMsg.style.display = "block";
+        return;
+    }
 
-/* ===== KIỂM TRA NGÀY THI ===== */
-const ngayThiValue=formData.get("ngay_thi");
-const ngayThi=new Date(ngayThiValue);
-const today=new Date();
+    /* ===== KIỂM TRA NGÀY THI ===== */
+    const ngayThiValue = formData.get("ngay_thi");
+    const ngayThi = new Date(ngayThiValue);
+    const today = new Date();
 
-/* Xóa giờ để tính đúng số ngày */
-today.setHours(0,0,0,0);
-ngayThi.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    ngayThi.setHours(0,0,0,0);
 
-/* Tính chênh lệch ngày */
-const diffTime=ngayThi-today;
-const diffDays=diffTime/(1000*60*60*24);
+    const diffTime = ngayThi - today;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-/* Không cho đăng ký nếu dưới 15 ngày */
-if(diffDays<15){
-errorMsg.innerText=
-"Ngày thi phải cách ngày đăng ký tối thiểu 15 ngày.";
-errorMsg.style.display="block";
-document.querySelector('input[name="ngay_thi"]').focus();
-return;
-}
+    if(diffDays < 15) {
+        errorMsg.innerText = "Ngày thi phải cách ngày đăng ký tối thiểu 15 ngày.";
+        errorMsg.style.display = "block";
+        document.querySelector('input[name="ngay_thi"]').focus();
+        return;
+    }
 
-if(diffDays > 60){
-errorMsg.innerText =
-"Ngày thi không được vượt quá 60 ngày.";
-errorMsg.style.display="block";
-return;
-}
+    if(diffDays > 60) {
+        errorMsg.innerText = "Ngày thi không được vượt quá 60 ngày.";
+        errorMsg.style.display = "block";
+        return;
+    }
 
-/* ===== KIỂM TRA GIỜ THI ===== */
-const gioThi=formData.get("gio_thi");
-if(gioThi < "08:00" || gioThi > "20:00"){
-errorMsg.innerText=
-"Giờ thi chỉ được phép từ 08:00 đến 20:00.";
-errorMsg.style.display="block";
-document.querySelector('input[name="gio_thi"]').focus();
-return;
-}
+    /* ===== KIỂM TRA GIỜ THI ===== */
+    const gioThi = formData.get("gio_thi");
+    if(gioThi < "08:00" || gioThi > "20:00") {
+        errorMsg.innerText = "Giờ thi chỉ được phép từ 08:00 đến 20:00.";
+        errorMsg.style.display = "block";
+        document.querySelector('input[name="gio_thi"]').focus();
+        return;
+    }
 
-/* =========================================
+    /* =========================================
        GỬI DỮ LIỆU
     ========================================= */
-sending=true;
-submitBtn.disabled=true;
-submitBtn.innerText="ĐANG GỬI...";
-fetch(SCRIPT_URL,{
-method:"POST",
-body:formData,
-mode:"cors"
-})
+    sending = true;
+    submitBtn.disabled = true;
+    submitBtn.innerText = "ĐANG GỬI...";
 
-.then(res=>res.text())
-.then(text=>{
-console.log(text);
-successMsg.style.display="block";
-form.reset();
-})
-
-.catch(err=>{
-console.error(err);
-errorMsg.innerText="Gửi dữ liệu thất bại. Vui lòng thử lại.";
-errorMsg.style.display="block";
-})
-
-.finally(()=>{
-setTimeout(()=>{
-sending=false;
-submitBtn.disabled=false;
-submitBtn.innerText="XÁC NHẬN ĐĂNG KÝ";
-},3000);
-
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: new URLSearchParams(formData)
+    })
+    .then(res => res.text())
+    .then(text => {
+        console.log(text);
+        successMsg.style.display = "block";
+        form.reset();
+    })
+    .catch(err => {
+        console.error(err);
+        errorMsg.innerText = "Gửi dữ liệu thất bại. Vui lòng thử lại.";
+        errorMsg.style.display = "block";
+    })
+    .finally(() => {
+        setTimeout(() => {
+            sending = false;
+            submitBtn.disabled = false;
+            submitBtn.innerText = "XÁC NHẬN ĐĂNG KÝ";
+        }, 3000);
+    });
 });
-
-});
-
 </script>
 
 </body>
