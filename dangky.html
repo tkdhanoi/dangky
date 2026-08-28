@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ĐĂNG KÝ THI CẤP</title>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#f4f6fb;
+margin:0;
+padding:10px;
+}
+
+/* CONTAINER */
+.container{
+max-width:600px;
+margin:auto;
+background:white;
+border-radius:16px;
+padding:10px;
+box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* HEADER */
+.header{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:10px;
+}
+
+.logo{
+height:150px;
+}
+
+.title{
+flex:1;
+text-align:center;
+font-size:40px;
+font-weight:700;
+letter-spacing:1px;
+}
+
+/* GRID */
+.row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+}
+
+/* MATERIAL FIELD */
+.material-field{
+position:relative;
+margin-bottom:15px;
+}
+
+.material-field input{
+width:100%;
+padding:18px 14px 8px 46px;
+border-radius:10px;
+border:1px solid #d7d7d7;
+font-size:15px;
+transition:0.2s;
+box-sizing:border-box;
+}
+
+.material-field label{
+position:absolute;
+left:46px;
+top:16px;
+color:#777;
+font-size:15px;
+pointer-events:none;
+transition:0.2s;
+background:white;
+padding:0 4px;
+}
+
+/* ICON */
+.material-icons{
+position:absolute;
+left:14px;
+top:14px;
+font-size:22px;
+color:#666;
+}
+
+/* FOCUS */
+.material-field input:focus{
+outline:none;
+border-color:#2563eb;
+box-shadow:0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.material-field input:focus + label,
+.material-field input:not(:placeholder-shown) + label{
+top:-8px;
+font-size:13px;
+color:#2563eb;
+}
+
+/* BUTTON */
+.btn-submit{
+width:100%;
+padding:10px;
+border:none;
+border-radius:12px;
+font-size:22px;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(90deg,#2563eb,#111827);
+color:white;
+margin-top:8px;
+transition:0.2s;
+}
+
+.btn-submit:hover{
+opacity:0.92;
+transform:translateY(-1px);
+}
+
+/* MESSAGES */
+.success,.error{
+display:none;
+margin-top:16px;
+padding:12px;
+border-radius:8px;
+font-weight:600;
+}
+
+.success{
+background:#ecfdf5;
+border:1px solid #10b981;
+color:#065f46;
+}
+
+.error{
+background:#fef2f2;
+border:1px solid #ef4444;
+color:#7f1d1d;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+body{
+padding:15px;
+}
+
+.container{
+padding:25px;
+}
+
+.logo{
+height:65px;
+}
+
+.title{
+font-size:36px;
+}
+
+.row{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="header">
+<img src="Logo.jpg" class="logo">
+<div class="title">ĐĂNG KÝ THI CẤP</div>
+</div>
+
+<form id="registerForm">
+
+<div class="material-field">
+    <span class="material-icons">sports_martial_arts</span>
+    <input list="clbList" name="ma_clb" placeholder=" " required>
+    <label>Mã câu lạc bộ *</label>
+</div>
+
+<datalist id="clbList"></datalist>
+
+<div class="row">
+
+<div class="material-field">
+<span class="material-icons">calendar_month</span>
+<input type="date" name="ngay_thi" placeholder=" " required>
+<label>Ngày thi *</label>
+</div>
+
+<div class="material-field">
+<span class="material-icons">schedule</span>
+<input type="time" name="gio_thi" min="08:00" max="20:00" placeholder=" " required>
+<label>Thời gian *</label>
+</div>
+
+</div>
+
+<div class="material-field">
+<span class="material-icons">location_on</span>
+<input type="text" name="dia_diem" placeholder=" " required>
+<label>Địa điểm tổ chức *</label>
+</div>
+
+<div class="material-field">
+<span class="material-icons">groups</span>
+<input type="number" name="so_luong" min="1" max="1000" placeholder=" " required>
+<label>Số lượng dự kiến *</label>
+</div>
+
+<div class="material-field">
+<span class="material-icons">phone</span>
+<input type="tel" name="dien_thoai" pattern="0[0-9]{9}" maxlength="10" placeholder=" " required>
+<label>Thông tin liên hệ</label>
+</div>
+
+<button class="btn-submit" type="submit">XÁC NHẬN ĐĂNG KÝ</button>
+
+<div class="success" id="successMsg">Đăng ký thành công! Dữ liệu đã được gửi.</div>
+<div class="error" id="errorMsg">Gửi dữ liệu thất bại. Vui lòng thử lại.</div>
+
+</form>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB5CkEWNAJrxOP-qC9p-yZI2mjVi9N5HiQ4FsloVrRmnD26B5ahTv-nqJPnFiZb-gt/exec";
+
+// Link CSV lấy trực tiếp từ cột A sheet ID_CLUB (gid=1847827149)
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1QqcljNVJX5hVpyPc6o5xL4ExIDuRnEwxEZKCC1sqCx0/gviz/tq?tqx=out:csv&sheet=ID_CLUB";
+
+const form = document.getElementById("registerForm");
+const successMsg = document.getElementById("successMsg");
+const errorMsg = document.getElementById("errorMsg");
+const submitBtn = document.querySelector(".btn-submit");
+
+let sending = false;
+let validCLB = [];
+
+/* =========================================
+   TẢI DANH SÁCH CLB TỪ APPS SCRIPT
+========================================= */
+async function loadCLBList() {
+    try {
+        // Tải danh sách trực tiếp qua GET request từ Apps Script
+        const response = await fetch(SCRIPT_URL, { method: "GET" });
+        if (!response.ok) {
+            throw new Error("Không thể kết nối đến server Apps Script.");
+        }
+        
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+            throw new Error("Dữ liệu trả về không hợp lệ.");
+        }
+
+        validCLB = data;
+
+        const clbList = document.getElementById("clbList");
+        clbList.innerHTML = "";
+        
+        validCLB.forEach(clb => {
+            const option = document.createElement("option");
+            option.value = clb;
+            clbList.appendChild(option);
+        });
+
+        console.log("Đã tải danh sách CLB:", validCLB.length, "mã");
+    } catch(error) {
+        console.error("Lỗi tải danh sách CLB:", error);
+        errorMsg.innerText = "Không thể tải danh sách CLB. Vui lòng thử lại.";
+        errorMsg.style.display = "block";
+    }
+}
+/* =========================================
+   KHỞI ĐỘNG
+========================================= */
+loadCLBList();
+
+/* =========================================
+   KIỂM TRA SỐ ĐIỆN THOẠI
+========================================= */
+function isValidPhone(phone) {
+    return /^(0[0-9]{9})$/.test(phone);
+}
+
+/* =========================================
+   SUBMIT
+========================================= */
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    if(sending) return;
+    
+    successMsg.style.display = "none";
+    errorMsg.style.display = "none";
+    
+    const formData = new FormData(form);
+    const ma_clb = formData.get("ma_clb").trim();
+    const phone = formData.get("dien_thoai").trim();
+
+    /* KIỂM TRA DANH SÁCH CLB */
+    if(validCLB.length === 0) {
+        errorMsg.innerText = "Danh sách CLB chưa được tải. Vui lòng tải lại trang.";
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    /* KIỂM TRA MÃ CLB */
+    if(!validCLB.includes(ma_clb)) {
+        errorMsg.innerText = "Mã CLB không đúng. Vui lòng chọn trong danh sách.";
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    /* KIỂM TRA ĐIỆN THOẠI */
+    if(!isValidPhone(phone)) {
+        errorMsg.innerText = "Số điện thoại không đúng. Vui lòng nhập 10 số bắt đầu bằng 0.";
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    /* ===== KIỂM TRA NGÀY THI ===== */
+    const ngayThiValue = formData.get("ngay_thi");
+    const ngayThi = new Date(ngayThiValue);
+    const today = new Date();
+
+    today.setHours(0,0,0,0);
+    ngayThi.setHours(0,0,0,0);
+
+    const diffTime = ngayThi - today;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    if(diffDays < 15) {
+        errorMsg.innerText = "Ngày thi phải cách ngày đăng ký tối thiểu 15 ngày.";
+        errorMsg.style.display = "block";
+        document.querySelector('input[name="ngay_thi"]').focus();
+        return;
+    }
+
+    if(diffDays > 60) {
+        errorMsg.innerText = "Ngày thi không được vượt quá 60 ngày.";
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    /* ===== KIỂM TRA GIỜ THI ===== */
+    const gioThi = formData.get("gio_thi");
+    if(gioThi < "08:00" || gioThi > "20:00") {
+        errorMsg.innerText = "Giờ thi chỉ được phép từ 08:00 đến 20:00.";
+        errorMsg.style.display = "block";
+        document.querySelector('input[name="gio_thi"]').focus();
+        return;
+    }
+
+    /* =========================================
+       GỬI DỮ LIỆU
+    ========================================= */
+    sending = true;
+    submitBtn.disabled = true;
+    submitBtn.innerText = "ĐANG GỬI...";
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: new URLSearchParams(formData)
+    })
+    .then(res => res.text())
+    .then(text => {
+        console.log(text);
+        successMsg.style.display = "block";
+        form.reset();
+    })
+    .catch(err => {
+        console.error(err);
+        errorMsg.innerText = "Gửi dữ liệu thất bại. Vui lòng thử lại.";
+        errorMsg.style.display = "block";
+    })
+    .finally(() => {
+        setTimeout(() => {
+            sending = false;
+            submitBtn.disabled = false;
+            submitBtn.innerText = "XÁC NHẬN ĐĂNG KÝ";
+        }, 2000);
+    });
+});
+</script>
+
+</body>
+</html>

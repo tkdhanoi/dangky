@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DANH SÁCH ĐĂNG KÝ</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
+body { font-family: Arial, Helvetica, sans-serif; background: #f4f6fb; margin: 0; padding: 20px 10px; }
+.container { max-width: 1350px; margin: auto; background: white; border-radius: 16px; padding: 14px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+
+/* HEADER - CĂN GIỮA TITLE */
+.header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; position: relative; }
+.logo { height: 90px; object-fit: contain; }
+.header-title-container { flex: 1; text-align: center; }
+.title { font-size: 36px; font-weight: 700; color: #111827; margin: 0; }
+
+.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+
+/* DROPDOWN LỌC THÁNG */
+.month-select {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #d7d7d7;
+    font-size: 16px;
+    font-weight: 700;
+    color: #FF3333;
+    outline: none;
+    background-color: white;
+    cursor: pointer;
+    min-width: 150px;
+}
+.month-select:focus { border-color: #2563eb; }
+
+.search-box { position: relative; flex: 1; min-width: 200px; }
+.search-box input { width: 100%; padding: 10px 14px 10px 40px; border-radius: 8px; border: 1px solid #d7d7d7; font-size: 14px; outline: none; }
+.search-box input:focus { border-color: #2563eb; }
+.search-box .material-icons { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #6b7280; }
+.stats-card { display: flex; gap: 12px; }
+.stat-item { background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 14px; border-radius: 8px; font-size: 15px; color: #1e40af; }
+.btn-refresh { display: flex; align-items: center; gap: 6px; background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
+.btn-refresh:hover { background: #1d4ed8; }
+
+/* CỐ ĐỊNH DÒNG TIÊU ĐỀ BẢNG (STICKY HEADER) */
+.table-wrapper { 
+    overflow-x: auto; 
+    max-height: 600px;
+    border-radius: 10px; 
+    border: 1px solid #e5e7eb; 
+}
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 16px; }
+thead { background: #111827; color: white; }
+
+th { 
+    padding: 10px 12px; 
+    text-align: center; 
+    font-weight: 600; 
+    border-bottom: 1px solid #e5e7eb; 
+    position: sticky;
+    top: 0;
+    background: #3366FF;
+    z-index: 10;
+}
+td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
+tbody tr:hover { background-color: #f9fafb; }
+.badge-clb { background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+.loading, .no-data { text-align: center; padding: 40px 10px; color: #6b7280; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <img src="Logo.jpg" alt="Logo" class="logo" onerror="this.style.display='none'">
+        <div class="header-title-container">
+            <h1 class="title">DANH SÁCH ĐĂNG KÝ</h1>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <!-- LỌC THEO THÁNG THI -->
+        <select id="monthFilter" class="month-select" onchange="filterData()">
+            <option value="all">- Tất cả các tháng -</option>
+            <option value="1">Tháng 1</option>
+            <option value="2">Tháng 2</option>
+            <option value="3">Tháng 3</option>
+            <option value="4">Tháng 4</option>
+            <option value="5">Tháng 5</option>
+            <option value="6">Tháng 6</option>
+            <option value="7">Tháng 7</option>
+            <option value="8">Tháng 8</option>
+            <option value="9">Tháng 9</option>
+            <option value="10">Tháng 10</option>
+            <option value="11">Tháng 11</option>
+            <option value="12">Tháng 12</option>
+        </select>
+
+        <div class="search-box">
+            <span class="material-icons">search</span>
+            <input type="text" id="searchInput" placeholder="Tìm theo Mã CLB, Địa điểm, SĐT..." onkeyup="filterData()">
+        </div>
+
+        <div class="stats-card">
+            <div class="stat-item">Tổng lượt: <strong id="totalCount">0</strong></div>
+            <div class="stat-item">Tổng thí sinh: <strong id="totalQuantity">0</strong></div>
+        </div>
+
+        <button class="btn-refresh" onclick="loadData()">
+            <span class="material-icons">refresh</span> Tải lại
+        </button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã CLB</th>
+                    <th>Ngày thi</th>
+                    <th>Giờ thi</th>
+                    <th>Địa điểm</th>
+                    <th>Số lượng</th>
+                    <th>Điện thoại</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="7" class="loading">
+                        <span class="material-icons" style="font-size: 32px; animation: spin 1s infinite linear;">sync</span>
+                        <p>Đang tải dữ liệu...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB5CkEWNAJrxOP-qC9p-yZI2mjVi9N5HiQ4FsloVrRmnD26B5ahTv-nqJPnFiZb-gt/exec";
+let listRegistrations = [];
+
+/* HÀM CHUẨN HÓA TRIỆT ĐỂ ĐỊNH DẠNG NGÀY THI: dd/MM/yyyy */
+function formatDate(dateVal) {
+    if (!dateVal) return '';
+    const str = String(dateVal).trim();
+    
+    // Dạng YYYY-MM-DD
+    if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(str)) {
+        const parts = str.split('T')[0].split(/[-/]/);
+        return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+    }
+    
+    // Dạng DD/MM/YYYY
+    if (str.includes('/')) {
+        const parts = str.split('/');
+        if (parts.length >= 3) {
+            return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
+        }
+    }
+
+    // Nếu dữ liệu dạng Date String chuẩn
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) {
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        return `${day}/${month}/${d.getFullYear()}`;
+    }
+
+    return str;
+}
+
+/* HÀM CHUẨN HÓA GIỜ THI CHÍNH XÁC (HH:mm) - TRÁNH LỆCH MÚI GIỜ */
+function formatTime(timeStr) {
+    if (!timeStr) return '';
+    const str = String(timeStr).trim();
+
+    // Bóc tách giờ:phút trực tiếp nếu chứa ký tự ISO/GMT mà không dùng new Date()
+    const timeMatch = str.match(/(\d{1,2}):(\d{2})/);
+    if (timeMatch) {
+        const hours = timeMatch[1].padStart(2, '0');
+        const minutes = timeMatch[2];
+        return `${hours}:${minutes}`;
+    }
+
+    return str;
+}
+/* RÚT LẤY GIÁ TRỊ THÁNG ĐỂ PHỤC VỤ LỌC DROPDOWN */
+function getMonthFromDate(dateStr) {
+    if (!dateStr) return 0;
+    const str = String(dateStr).trim();
+
+    // Trường hợp 1: Dạng YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+        const parts = str.split('T')[0].split('-');
+        return parseInt(parts[1], 10);
+    }
+
+    // Trường hợp 2: Dạng DD/MM/YYYY
+    if (str.includes('/')) {
+        const parts = str.split('/');
+        if (parts.length >= 2) {
+            return parseInt(parts[1], 10);
+        }
+    }
+
+    return 0;
+}
+
+async function loadData() {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="loading">
+                <span class="material-icons" style="font-size: 32px; animation: spin 1s infinite linear;">sync</span>
+                <p>Đang tải dữ liệu đăng ký...</p>
+            </td>
+        </tr>`;
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getRegistrations`, { method: "GET" });
+        if (!response.ok) throw new Error("Không thể kết nối máy chủ.");
+
+        const data = await response.json();
+
+        // ĐẢO NGƯỢC DỮ LIỆU: Đăng ký mới nhất xếp dòng đầu tiên
+        if (Array.isArray(data)) {
+            listRegistrations = data.reverse();
+        } else {
+            listRegistrations = [];
+        }
+
+        filterData();
+    } catch (error) {
+        console.error("Lỗi:", error);
+        tbody.innerHTML = `<tr><td colspan="7" class="no-data" style="color: #ef4444;">Không thể tải dữ liệu. Vui lòng thử lại.</td></tr>`;
+    }
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="no-data">Chưa có dữ liệu đăng ký nào.</td></tr>`;
+        updateStats(0, 0);
+        return;
+    }
+
+    let totalQty = 0;
+    data.forEach((item, index) => {
+        totalQty += parseInt(item.so_luong) || 0;
+
+        const ngayThiFormatted = formatDate(item.ngay_thi);
+        const gioThiFormatted = formatTime(item.gio_thi);
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td style="text-align: center;"><strong>${index + 1}</strong></td>
+            <td style="text-align: center;"><span class="badge-clb">${item.ma_clb || ''}</span></td>
+            <td style="text-align: center;"><strong>${ngayThiFormatted}</strong></td>
+            <td style="text-align: center;">${gioThiFormatted}</td>
+            <td>${item.dia_diem || ''}</td>
+            <td style="text-align: center; font-weight: bold; color: #2563eb;">${item.so_luong || 0}</td>
+            <td style="text-align: center;"><a href="tel:${item.dien_thoai}" style="color: #059669; text-decoration: none; font-weight: 500;">${item.dien_thoai || ''}</a></td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    updateStats(data.length, totalQty);
+}
+
+function updateStats(count, totalQuantity) {
+    document.getElementById("totalCount").innerText = count;
+    document.getElementById("totalQuantity").innerText = totalQuantity;
+}
+
+function filterData() {
+    const selectedMonth = document.getElementById("monthFilter").value;
+    const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
+
+    const filtered = listRegistrations.filter(item => {
+        // Lọc theo tháng
+        let matchMonth = true;
+        if (selectedMonth !== "all") {
+            const itemMonth = getMonthFromDate(item.ngay_thi);
+            matchMonth = (itemMonth === parseInt(selectedMonth, 10));
+        }
+
+        // Lọc theo từ khóa tìm kiếm
+        let matchKeyword = true;
+        if (keyword) {
+            const ngayFormatted = formatDate(item.ngay_thi).toLowerCase();
+            matchKeyword = (item.ma_clb || "").toLowerCase().includes(keyword) ||
+                           (item.dia_diem || "").toLowerCase().includes(keyword) ||
+                           (item.dien_thoai || "").toLowerCase().includes(keyword) ||
+                           ngayFormatted.includes(keyword);
+        }
+
+        return matchMonth && matchKeyword;
+    });
+
+    renderTable(filtered);
+}
+
+loadData();
+</script>
+</body>
+</html>
