@@ -8,23 +8,23 @@
 
 <style>
 * { box-sizing: border-box; }
-body { font-family: Arial, Helvetica, sans-serif; background: #f4f6fb; margin: 0; padding: 20px 10px; }
-.container { max-width: 1500px; margin: auto; background: white; border-radius: 16px; padding: 14px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+body { font-family: Arial, Helvetica, sans-serif; background: #f4f6fb; margin: 0; padding: 10px 10px; }
+.container { max-width: 1500px; margin: auto; background: white; border-radius: 16px; padding: 10px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
 
 /* HEADER */
-.header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; position: relative; }
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; position: relative; }
 .logo { height: 90px; object-fit: contain; }
 .header-title-container { flex: 1; text-align: center; }
 .title { font-size: 36px; font-weight: 700; color: #111827; margin: 0; }
 
-.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 5px; }
 
 /* DROPDOWN LỌC THÁNG */
 .month-select {
-    padding: 10px 14px;
+    padding: 5px 14px;
     border-radius: 8px;
     border: 1px solid #d7d7d7;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #FF3333;
     outline: none;
@@ -35,28 +35,28 @@ body { font-family: Arial, Helvetica, sans-serif; background: #f4f6fb; margin: 0
 .month-select:focus { border-color: #2563eb; }
 
 .search-box { position: relative; flex: 1; min-width: 200px; }
-.search-box input { width: 100%; padding: 10px 14px 10px 40px; border-radius: 8px; border: 1px solid #d7d7d7; font-size: 14px; outline: none; }
+.search-box input { width: 100%; padding: 10px 16px 5px 40px; border-radius: 8px; border: 1px solid #d7d7d7; font-size: 14px; outline: none; }
 .search-box input:focus { border-color: #2563eb; }
 .search-box .material-icons { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #6b7280; }
 .stats-card { display: flex; gap: 12px; }
-.stat-item { background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 14px; border-radius: 8px; font-size: 14px; color: #1e40af; }
-.btn-refresh { display: flex; align-items: center; gap: 6px; background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+.stat-item { background: #eff6ff; border: 1px solid #bfdbfe; padding: 5px 16px; border-radius: 8px; font-size: 14px; color: #1e40af; }
+.btn-refresh { display: flex; align-items: center; gap: 6px; background: #2563eb; color: white; border: none; padding: 5px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
 .btn-refresh:hover { background: #1d4ed8; }
 
-/* CỐ ĐỊNH DÒNG TIÊU ĐỀ BẢNG (STICKY HEADER) */
+/* BẢNG DỮ LIỆU & TIÊU ĐỀ */
 .table-wrapper { 
     overflow-x: auto; 
-    max-height: 600px;
+    max-height: 700px;
     border-radius: 10px; 
     border: 1px solid #e5e7eb; 
 }
-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-thead { background: #111827; color: white; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
 
+/* TIÊU ĐỀ BẢNG CHỮ ĐẬM */
 th { 
-    padding: 10px 8px; 
+    padding: 5px 8px; 
     text-align: center; 
-    font-weight: 600; 
+    font-weight: 700; 
     border-bottom: 1px solid #e5e7eb; 
     position: sticky;
     top: 0;
@@ -65,20 +65,35 @@ th {
     z-index: 10;
     white-space: nowrap;
 }
-td { padding: 8px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
-tbody tr:hover { background-color: #f9fafb; }
-.badge-clb { background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-weight: bold; display: inline-block; }
 
-/* CSS THU GỌN VÀ TẠO 2 DÒNG CHO CỘT NHÂN SỰ */
+/* TẤT CẢ HÀNG THÔNG TIN LÀ CHỮ THƯỜNG */
+td { 
+    padding: 3px; 
+    border-bottom: 1px solid #e5e7eb; 
+    vertical-align: middle; 
+    font-weight: normal; 
+    color: #374151;
+}
+tbody tr:hover { background-color: #f9fafb; }
+.badge-clb { background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-weight: normal; display: inline-block; }
+
+/* ĐỘ RỘNG CỘT TỰ ĐỘNG PHÙ HỢP CÓ TẠO 2 DÒNG */
 .col-person {
     max-width: 150px;
     min-width: 110px;
-    white-space: normal !important;
+    white-space: normal;
     font-size: 12px;
-    word-wrap: break-word;
     text-align: center;
-    line-height: 1.3;
+    line-height: 1.4;
+    padding: 6px 12px;
 }
+
+.person-name {
+    display: block;
+    font-weight: normal;
+    color: #111827;
+}
+
 .phone-sub {
     display: block;
     font-size: 12px;
@@ -136,16 +151,16 @@ tbody tr:hover { background-color: #f9fafb; }
             <thead>
                 <tr>
                     <th style="width: 30px;">STT</th>
-                    <th style="width: 240px;">TÊN CLB</th>
-                    <th>Ngày thi</th>
-                    <th>Giờ thi</th>
-                    <th>Giám sát</th>
-                    <th>Giám khảo 1</th>
-                    <th>Giám khảo 2</th>
-                    <th>Giám khảo 3</th>
-                    <th>Giám khảo 4</th>
-                    <th>Giám khảo 5</th>
-                    <th>Thư ký VTF</th>
+                    <th style="width: 180px;">TÊN CLB</th>
+                    <th>NGÀY THI</th>
+                    <th>GIỜ THI</th>
+                    <th>GIÁM SÁT</th>
+                    <th>GIÁM KHẢO 1</th>
+                    <th>GIÁM KHẢO 2</th>
+                    <th>GIÁM KHẢO 3</th>
+                    <th>GIÁM KHẢO 4</th>
+                    <th>GIÁM KHẢO 5</th>
+                    <th>THƯ KÝ VTF</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -194,7 +209,6 @@ function formatTime(timeStr) {
     if (!timeStr) return '';
     const str = String(timeStr).trim();
 
-    // Regex bóc tách 2 chữ số giờ và phút trực tiếp từ chuỗi
     const timeMatch = str.match(/(\d{1,2}):(\d{2})/);
     if (timeMatch) {
         const hours = timeMatch[1].padStart(2, '0');
@@ -205,26 +219,25 @@ function formatTime(timeStr) {
     return str;
 }
 
-/* HÀM TÁCH TÊN VÀ SỐ ĐIỆN THOẠI THÀNH 2 DÒNG */
+/* HÀM XỬ LÝ CHỮ THƯỜNG VÀ TÁCH TÊN - SĐT THÀNH 2 DÒNG */
 function formatPerson(text) {
     if (!text) return '';
-    const str = String(text).trim();
+    let str = String(text).trim();
     
-    // Tự động tìm chuỗi số điện thoại (10-11 chữ số)
     const phoneMatch = str.match(/(0\d{9,10})/);
     if (phoneMatch) {
         const phone = phoneMatch[0];
-        const name = str.replace(phone, '').trim();
-        return `<div><strong>${name}</strong></div><span class="phone-sub">${phone}</span>`;
+        // Loại bỏ số điện thoại và các ký tự '-' nối dư thừa
+        let name = str.replace(phone, '').trim().replace(/[-–]$/, '').trim();
+        return `<span class="person-name">${name}</span><span class="phone-sub">${phone}</span>`;
     }
     
-    // Nếu có dấu xuống dòng sẵn
     if (str.includes('\n')) {
         const parts = str.split('\n');
-        return `<div><strong>${parts[0]}</strong></div><span class="phone-sub">${parts.slice(1).join(' ')}</span>`;
+        return `<span class="person-name">${parts[0]}</span><span class="phone-sub">${parts.slice(1).join(' ')}</span>`;
     }
 
-    return `<strong>${str}</strong>`;
+    return `<span class="person-name">${str}</span>`;
 }
 
 function getMonthFromDate(dateStr) {
@@ -282,10 +295,10 @@ function renderTable(data) {
 
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td style="text-align: center;"><strong>${index + 1}</strong></td>
+            <td style="text-align: center;">${index + 1}</td>
             <td><span class="badge-clb">${item.ten_clb || ''}</span></td>
-            <td style="text-align: center; white-space: nowrap;"><strong>${ngayThiFormatted}</strong></td>
-            <td style="text-align: center; white-space: nowrap;"><strong>${gioThiFormatted}</strong></td>
+            <td style="text-align: center; white-space: nowrap;">${ngayThiFormatted}</td>
+            <td style="text-align: center; white-space: nowrap;">${gioThiFormatted}</td>
             <td class="col-person">${formatPerson(item.giam_sat)}</td>
             <td class="col-person">${formatPerson(item.giam_khao_1)}</td>
             <td class="col-person">${formatPerson(item.giam_khao_2)}</td>
