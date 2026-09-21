@@ -3,126 +3,847 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Ký Thi Cấp</title>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>ĐĂNG KÝ THI & PHÂN CÔNG GSGK</title>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body {
-            background-color: #f4f7f6;
-            background-image: linear-gradient(rgba(244, 247, 246, 0.9), rgba(244, 247, 246, 0.9)), url('Logo.jpg');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 500px;
-            color: #333;
+        :root {
+            --primary-dark: #001a2d;
+            --primary-blue: #1877f2;
+            --accent-blue: #2563eb;
+            --bg-light: #f4f6fb;
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 70px;
+            --text-main: #111827;
+            --text-sub: #4b5563;
+            --border-color: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: var(--bg-light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* ================= SIDEBAR ================= */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-dark);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .brand {
+            padding: 20px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: padding 0.3s;
+        }
+        .brand img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .brand-text {
+            width: 100%;
+            transition: opacity 0.2s, max-height 0.3s;
+            overflow: hidden;
+            white-space: normal;
+        }
+        .brand-text h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #60a5fa;
+            text-transform: uppercase;
+            line-height: 1.3;
+            margin: 0;
+            text-align: center;
+        }
+        .brand-text p {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .brand { padding: 15px 5px; }
+        .sidebar.collapsed .brand img { width: 50px; height: 50px; margin-bottom: 0; }
+        .sidebar.collapsed .brand-text { opacity: 0; max-height: 0; display: none; }
+
+        .nav-menu { list-style: none; padding: 15px 10px; flex: 1; }
+        .nav-item { margin-bottom: 8px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 8px 15px;
+            color: #d1d5db;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .nav-link:hover, .nav-link.active { background: var(--primary-blue); color: #fff; }
+        .nav-link i { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 12px 0; }
+        .sidebar.collapsed .nav-link span { display: none; }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 11px;
+            color: #6b7280;
+            text-align: center;
+            white-space: nowrap;
             overflow: hidden;
         }
+        .sidebar.collapsed .sidebar-footer { display: none; }
 
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.92);
-            padding: 25px 20px; 
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+        /* ================= MAIN CONTENT ================= */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+        .topbar {
+            height: 40px;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 15px; }
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--primary-dark);
+            cursor: pointer;
+            padding: 6px 0px;
+            border-radius: 6px;
+        }
+        .toggle-btn:hover { background: var(--bg-light); }
+        .topbar-title { font-size: 20px; font-weight: 700; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; }
+
+        .content-area { flex: 1; padding: 5px; overflow-y: auto; }
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        /* ================= FORM MATERIAL ================= */
+        .form-card {
+            max-width: 750px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .form-header { text-align: center; margin-bottom: 20px; }
+        .form-header h2 { font-size: 32px; color: var(--primary-dark); font-weight: 700; }
+        .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .material-field { position: relative; margin-bottom: 18px; }
+        .material-field input, .material-field select {
             width: 100%;
-            backdrop-filter: blur(5px);
+            padding: 16px 14px 6px 46px;
+            border-radius: 10px;
+            border: 1px solid #d7d7d7;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+            background: #fff;
+        }
+        .material-field label {
+            position: absolute;
+            left: 46px;
+            top: 14px;
+            color: #777;
+            font-size: 14px;
+            pointer-events: none;
+            transition: 0.2s;
+            background: white;
+            padding: 0 4px;
+        }
+        .material-field .material-icons { position: absolute; left: 14px; top: 12px; font-size: 22px; color: #666; }
+        .material-field input:focus, .material-field select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+        .material-field input:focus + label,
+        .material-field input:not(:placeholder-shown) + label {
+            top: -8px;
+            font-size: 12px;
+            color: var(--accent-blue);
+            font-weight: 600;
         }
 
-        .logo-img { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); border: 3px solid #fff; }
-        h1 { margin-bottom: 8px; color: #d9534f; font-size: clamp(22px, 4.5vw, 24px); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-        h2 { margin-bottom: 25px; color: #2c3e50; font-size: clamp(18px, 3.5vw, 20px); font-weight: 500; white-space: nowrap; }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(90deg, #2563eb, #111827);
+            color: white;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+        .btn-submit:hover { opacity: 0.95; transform: translateY(-1px); }
 
-        .tab-menu { display: flex; justify-content: center; gap: 8px; flex-wrap: nowrap; width: 100%; margin-bottom: 15px; }
-        .tab-btn { flex: 1; text-decoration: none; padding: 12px 6px; font-size: clamp(14px, 2.8vw, 15px); font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.05); white-space: nowrap; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
-        .tab-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
-        .tab-btn.register { background-color: #3498db; color: white; }
-        .tab-btn.register:hover { background-color: #2980b9; }
-        .tab-btn.list { background-color: #2ecc71; color: white; }
-        .tab-btn.list:hover { background-color: #27ae60; }
-        .tab-btn.result { background-color: #e67e22; color: white; }
-        .tab-btn.result:hover { background-color: #d35400; }
+        .alert-msg { display: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: 600; font-size: 14px; }
+        .alert-msg.success { background: #ecfdf5; border: 1px solid #10b981; color: #065f46; }
+        .alert-msg.error { background: #fef2f2; border: 1px solid #ef4444; color: #7f1d1d; }
 
-        .admin-section { border-top: 1px dashed #ccc; padding-top: 15px; margin-top: 10px; }
-        .btn-reset-exam { background-color: #dc3545; color: white; width: 100%; padding: 10px; font-size: 14px; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-reset-exam:hover { background-color: #bb2d3b; box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3); }
+        /* ================= TABLES ================= */
+        .data-card { background: #fff; border-radius: 16px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        .month-select {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid #d7d7d7;
+            font-size: 14px;
+            font-weight: 700;
+            color: #FF3333;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+        .search-box { position: relative; flex: 1; min-width: 220px; }
+        .search-box input { width: 100%; padding: 8px 14px 8px 38px; border-radius: 8px; border: 1px solid #d7d7d7; font-size: 14px; outline: none; }
+        .search-box input:focus { border-color: var(--accent-blue); }
+        .search-box .material-icons { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 20px; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; animation: fadeIn 0.25s ease-out; }
-        .modal.active { display: flex; }
-        .modal-content { background: #fff; width: 100%; height: 98vh; max-width: 1260px; border-radius: 12px; position: relative; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; overflow: hidden; animation: scaleUp 0.25s ease-out; }
-        .close-btn { position: absolute; top: 10px; right: 10px; width: 25px; height: 25px; background: #e74c3c; color: white; border: none; border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: background 0.2s, transform 0.2s; }
-        .close-btn:hover { background: #c0392b; transform: scale(1.1); }
-        .modal-iframe { width: 100%; height: 100%; border: none; border-radius: 12px; }
+        .stats-card { display: flex; gap: 10px; }
+        .stat-item { background: #eff6ff; border: 1px solid #bfdbfe; padding: 6px 14px; border-radius: 8px; font-size: 13px; color: #1e40af; font-weight: 600; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .btn-refresh { display: flex; align-items: center; gap: 6px; background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-refresh:hover { background: #1d4ed8; }
+
+        .table-wrapper { overflow-x: auto; max-height: 75vh; border-radius: 10px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th {
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            background: #3366FF;
+            color: white;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        td { padding: 8px 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; color: #374151; }
+        tbody tr:hover { background-color: #f9fafb; }
+
+        /* Class định dạng Ngày thi */
+        .date-past { font-weight: normal; color: #9ca3af; } /* Ngày đã qua: chữ thường, xám nhạt */
+        .date-future { font-weight: bold; color: #111827; }  /* Ngày hiện tại / tương lai: in đậm */
+
+        .badge-clb { background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-weight: bold; display: inline-block; }
+        .col-person { max-width: 150px; min-width: 110px; white-space: normal; font-size: 12px; text-align: center; line-height: 1.3; }
+        .person-name { display: block; font-weight: 600; color: #111827; }
+        .phone-sub { display: block; font-size: 11px; color: #6b7280; }
+
+        .loading, .no-data { text-align: center; padding: 40px 10px; color: #6b7280; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100% !important; height: auto; }
+            .sidebar.collapsed { width: 100% !important; }
+            .nav-menu { display: flex; overflow-x: auto; padding: 5px; }
+            .nav-item { margin-bottom: 0; }
+            .nav-link { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+            .nav-link span { display: inline !important; }
+            .row-grid { grid-template-columns: 1fr; }
+            .brand-text h2 { font-size: 12px; }
+            .sidebar-footer { display: none; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <img src="logo.jpg" alt="Logo Taekwondo" class="logo-img">
-        <h1>LIÊN ĐOÀN TAEKWONDO TP. HÀ NỘI</h1>
-        <h2>ĐĂNG KÝ THI CẤP - PHÂN CÔNG GSGK</h2>
-        
-        <div class="tab-menu">
-            <button type="button" onclick="openModal('dangky.html')" class="tab-btn register">
-                <i class="fa-solid fa-pen-to-square"></i> Đăng ký
-            </button>
-            <button type="button" onclick="openModal('danhsach.html')" class="tab-btn list">
-                <i class="fa-solid fa-list-check"></i> Danh sách đăng ký
-            </button>
-            <button type="button" onclick="openModal('phancong.html')" class="tab-btn result">
-                <i class="fa-solid fa-award"></i> GSGK - Thư ký VTF
-            </button>
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <img src="Logo.jpg" alt="Logo" onerror="this.src='https://via.placeholder.com/60'">
+            <div class="brand-text">
+                <h2>LIÊN ĐOÀN TAEKWONDO THÀNH PHỐ HÀ NỘI</h2>
+                <p>Hệ Thống Quản Lý Thi Cấp</p>
+            </div>
         </div>
-    </div>
 
-    <div id="popupModal" class="modal">
-        <div class="modal-content">
-            <button type="button" class="close-btn" onclick="closeModal()" title="Đóng">&times;</button>
-            <iframe id="modalIframe" class="modal-iframe" src=""></iframe>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a class="nav-link active" title="Đăng Ký Thi" onclick="switchView('view-dangky', this)">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Đăng Ký Thi</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" title="Danh Sách Đăng Ký" onclick="switchView('view-danhsach', this)">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Danh Sách Đăng Ký</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" title="Phân Công GSGK" onclick="switchView('view-phancong', this)">
+                    <i class="fa-solid fa-award"></i>
+                    <span>Phân Công GSGK</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            &copy; 2026 HaNoi Taekwondo - HNTF
         </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Mở/Thu gọn Sidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="topbar-title" id="pageTitle">
+                    <i class="fa-solid fa-pen-to-square"></i> ĐĂNG KÝ THI
+                </div>
+            </div>
+        </header>
+
+        <main class="content-area">
+
+            <section id="view-dangky" class="view-panel active">
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2>ĐĂNG KÝ THI CẤP</h2>
+                    </div>
+
+                    <form id="registerForm">
+                        <div class="material-field">
+                            <span class="material-icons">sports_martial_arts</span>
+                            <input list="clbList" name="ma_clb" placeholder=" " required>
+                            <label>Mã câu lạc bộ</label>
+                        </div>
+                        <datalist id="clbList"></datalist>
+
+                        <div class="row-grid">
+                            <div class="material-field">
+                                <span class="material-icons">calendar_month</span>
+                                <input type="date" name="ngay_thi" placeholder=" " required>
+                                <label>Ngày thi</label>
+                            </div>
+                            <div class="material-field">
+                                <span class="material-icons">schedule</span>
+                                <input type="time" name="gio_thi" min="08:00" max="20:00" placeholder=" " required>
+                                <label>Thời gian</label>
+                            </div> 
+                        </div>
+
+                        <div class="material-field">
+                            <span class="material-icons">location_on</span>
+                            <input type="text" name="dia_diem" placeholder=" " required>
+                            <label>Địa điểm tổ chức</label>
+                        </div>
+
+                        <div class="material-field">
+                            <span class="material-icons">groups</span>
+                            <input type="number" name="so_luong" min="1" max="1000" placeholder=" " required>
+                            <label>Số lượng dự kiến</label>
+                        </div>
+
+                        <div class="material-field">
+                            <span class="material-icons">phone</span>
+                            <input type="tel" name="dien_thoai" pattern="0[0-9]{9}" maxlength="10" placeholder=" " required>
+                            <label>Thông tin liên hệ</label>
+                        </div>
+
+                        <button class="btn-submit" type="submit">XÁC NHẬN</button>
+
+                        <div class="alert-msg success" id="successMsg">Đăng ký thành công! Dữ liệu đã được gửi.</div>
+                        <div class="alert-msg error" id="errorMsg">Gửi dữ liệu thất bại. Vui lòng thử lại.</div>
+                    </form>
+                </div>
+            </section>
+
+            <section id="view-danhsach" class="view-panel">
+                <div class="data-card">
+                    <div class="toolbar">
+                        <select id="monthFilterDS" class="month-select" onchange="filterDataDS()">
+                            <option value="all">- Tất cả các tháng -</option>
+                            <option value="1">Tháng 1</option><option value="2">Tháng 2</option>
+                            <option value="3">Tháng 3</option><option value="4">Tháng 4</option>
+                            <option value="5">Tháng 5</option><option value="6">Tháng 6</option>
+                            <option value="7">Tháng 7</option><option value="8">Tháng 8</option>
+                            <option value="9">Tháng 9</option><option value="10">Tháng 10</option>
+                            <option value="11">Tháng 11</option><option value="12">Tháng 12</option>
+                        </select>
+
+                        <div class="search-box">
+                            <span class="material-icons">search</span>
+                            <input type="text" id="searchInputDS" placeholder="Tìm theo Mã CLB, Địa điểm, SĐT..." onkeyup="filterDataDS()">
+                        </div>
+
+                        <div class="stats-card">
+                            <div class="stat-item">Tổng lượt: <strong id="totalCountDS">0</strong></div>
+                            <div class="stat-item">Tổng thí sinh: <strong id="totalQtyDS">0</strong></div>
+                        </div>
+
+                        <button class="btn-refresh" onclick="loadDataDS(true)">
+                            <span class="material-icons">refresh</span> Tải lại
+                        </button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">STT</th>
+                                    <th>MÃ CLB</th>
+                                    <th>NGÀY THI</th>
+                                    <th>GIỜ THI</th>
+                                    <th>ĐỊA ĐIỂM</th>
+                                    <th>SỐ LƯỢNG</th>
+                                    <th>ĐIỆN THOẠI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyDS">
+                                <tr>
+                                    <td colspan="7" class="loading">
+                                        <span class="material-icons" style="font-size: 32px; animation: spin 1s infinite linear;">sync</span>
+                                        <p>Đang tải dữ liệu...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-phancong" class="view-panel">
+                <div class="data-card">
+                    <div class="toolbar">
+                        <select id="monthFilterPC" class="month-select" onchange="filterDataPC()">
+                            <option value="all">- Tất cả các tháng -</option>
+                            <option value="1">Tháng 1</option><option value="2">Tháng 2</option>
+                            <option value="3">Tháng 3</option><option value="4">Tháng 4</option>
+                            <option value="5">Tháng 5</option><option value="6">Tháng 6</option>
+                            <option value="7">Tháng 7</option><option value="8">Tháng 8</option>
+                            <option value="9">Tháng 9</option><option value="10">Tháng 10</option>
+                            <option value="11">Tháng 11</option><option value="12">Tháng 12</option>
+                        </select>
+
+                        <div class="search-box">
+                            <span class="material-icons">search</span>
+                            <input type="text" id="searchInputPC" placeholder="Tìm tên CLB, Giám sát, Giám khảo..." onkeyup="filterDataPC()">
+                        </div>
+
+                        <div class="stats-card">
+                            <div class="stat-item">Tổng lượt phân công: <strong id="totalCountPC">0</strong></div>
+                        </div>
+
+                        <button class="btn-refresh" onclick="loadDataPC(true)">
+                            <span class="material-icons">refresh</span> Tải lại
+                        </button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">STT</th>
+                                    <th style="min-width: 140px;">TÊN CLB</th>
+                                    <th>NGÀY THI</th>
+                                    <th>GIỜ THI</th>
+                                    <th>GIÁM SÁT</th>
+                                    <th>GIÁM KHẢO 1</th>
+                                    <th>GIÁM KHẢO 2</th>
+                                    <th>GIÁM KHẢO 3</th>
+                                    <th>GIÁM KHẢO 4</th>
+                                    <th>GIÁM KHẢO 5</th>
+                                    <th>THƯ KÝ VTF</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyPC">
+                                <tr>
+                                    <td colspan="11" class="loading">
+                                        <span class="material-icons" style="font-size: 32px; animation: spin 1s infinite linear;">sync</span>
+                                        <p>Đang tải dữ liệu...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
     </div>
 
     <script>
-        function openModal(url) {
-            const modal = document.getElementById('popupModal');
-            document.getElementById('modalIframe').src = url;
-            modal.classList.add('active');
+        /* CONFIG URLS - THAY THẾ BẰNG URL APPS SCRIPT ĐÃ GỘP MỚI DỄN KHAI */
+        const MAIN_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB5CkEWNAJrxOP-qC9p-yZI2mjVi9N5HiQ4FsloVrRmnD26B5ahTv-nqJPnFiZb-gt/exec";
+
+        /* CỜ KIỂM TRA ĐÃ TẢI DỮ LIỆU CHƯA */
+        let isLoadedDS = false;
+        let isLoadedPC = false;
+        let listDS = [];
+        let listPC = [];
+
+        /* AN / HIEN SIDEBAR */
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
         }
 
-        function closeModal() {
-            document.getElementById('popupModal').classList.remove('active');
-            document.getElementById('modalIframe').src = ''; 
+        /* CHUYỂN VIEW QUA SIDEBAR */
+        function switchView(viewId, element) {
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(viewId).classList.add('active');
+            element.classList.add('active');
+
+            const pageTitle = document.getElementById('pageTitle');
+            if(viewId === 'view-dangky') {
+                pageTitle.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> ĐĂNG KÝ THI CẤP`;
+            } else if(viewId === 'view-danhsach') {
+                pageTitle.innerHTML = `<i class="fa-solid fa-list-check"></i> DANH SÁCH ĐĂNG KÝ`;
+                if (!isLoadedDS) loadDataDS();
+            } else if(viewId === 'view-phancong') {
+                pageTitle.innerHTML = `<i class="fa-solid fa-award"></i> PHÂN CÔNG GSGK - THƯ KÝ VTF`;
+                if (!isLoadedPC) loadDataPC();
+            }
         }
 
-        window.onclick = function(event) {
-            if (event.target === document.getElementById('popupModal')) closeModal();
-        };
+        /* FORMAT DATE & TIME */
+        function formatDate(dateVal) {
+            if (!dateVal) return '';
+            const str = String(dateVal).trim();
+            if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(str)) {
+                const parts = str.split('T')[0].split(/[-/]/);
+                return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+            }
+            if (str.includes('/')) {
+                const parts = str.split('/');
+                if (parts.length >= 3) return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
+            }
+            const d = new Date(str);
+            if (!isNaN(d.getTime())) {
+                return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+            }
+            return str;
+        }
 
-        window.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') closeModal();
+        /* HÀM KIỂM TRA NẾU NGÀY THI LÀ NGÀY QUÁ KHỨ */
+        function isPastDate(dateVal) {
+            if (!dateVal) return false;
+            let d;
+            const str = String(dateVal).trim();
+            if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(str)) {
+                const parts = str.split('T')[0].split(/[-/]/);
+                d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            } else if (str.includes('/')) {
+                const parts = str.split('/');
+                if (parts.length >= 3) {
+                    d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                }
+            } else {
+                d = new Date(str);
+            }
+
+            if (!d || isNaN(d.getTime())) return false;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            d.setHours(0, 0, 0, 0);
+
+            return d < today;
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const match = String(timeStr).trim().match(/(\d{1,2}):(\d{2})/);
+            return match ? `${match[1].padStart(2, '0')}:${match[2]}` : String(timeStr);
+        }
+
+        function getMonthFromDate(dateStr) {
+            if (!dateStr) return 0;
+            const formatted = formatDate(dateStr);
+            if (formatted.includes('/')) {
+                const parts = formatted.split('/');
+                if (parts.length >= 2) return parseInt(parts[1], 10);
+            }
+            return 0;
+        }
+
+        /* 1. LOGIC FORM ĐĂNG KÝ */
+        const formReg = document.getElementById("registerForm");
+        const successMsg = document.getElementById("successMsg");
+        const errorMsg = document.getElementById("errorMsg");
+        const submitBtn = document.querySelector(".btn-submit");
+        let validCLB = [];
+        let isSending = false;
+
+        async function loadCLBList() {
+            try {
+                const response = await fetch(MAIN_SCRIPT_URL, { method: "GET" });
+                if (!response.ok) throw new Error("Lỗi mạng");
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    validCLB = data;
+                    const clbList = document.getElementById("clbList");
+                    clbList.innerHTML = "";
+                    validCLB.forEach(clb => {
+                        const opt = document.createElement("option");
+                        opt.value = clb;
+                        clbList.appendChild(opt);
+                    });
+                }
+            } catch(e) { console.error("Lỗi tải CLB:", e); }
+        }
+        loadCLBList();
+
+        formReg.addEventListener("submit", function(e) {
+            e.preventDefault();
+            if(isSending) return;
+
+            successMsg.style.display = "none";
+            errorMsg.style.display = "none";
+
+            const formData = new FormData(formReg);
+            const ma_clb = formData.get("ma_clb").trim();
+            const phone = formData.get("dien_thoai").trim();
+
+            if(validCLB.length > 0 && !validCLB.includes(ma_clb)) {
+                showRegError("Mã CLB không đúng. Vui lòng chọn trong danh sách.");
+                return;
+            }
+
+            if(!/^(0[0-9]{9})$/.test(phone)) {
+                showRegError("Số điện thoại không hợp lệ (cần 10 số bắt đầu bằng 0).");
+                return;
+            }
+
+            const ngayThi = new Date(formData.get("ngay_thi"));
+            const today = new Date();
+            today.setHours(0,0,0,0); ngayThi.setHours(0,0,0,0);
+            const diffDays = (ngayThi - today) / (1000 * 60 * 60 * 24);
+
+            if(diffDays < 15) {
+                showRegError("Ngày thi phải cách ngày đăng ký tối thiểu 15 ngày.");
+                return;
+            }
+            if(diffDays > 60) {
+                showRegError("Ngày thi không được vượt quá 60 ngày.");
+                return;
+            }
+
+            isSending = true;
+            submitBtn.disabled = true;
+            submitBtn.innerText = "ĐANG GỬI...";
+
+            fetch(MAIN_SCRIPT_URL, {
+                method: "POST",
+                body: new URLSearchParams(formData)
+            })
+            .then(res => res.text())
+            .then(() => {
+                successMsg.style.display = "block";
+                formReg.reset();
+                isLoadedDS = false;
+            })
+            .catch(() => showRegError("Gửi dữ liệu thất bại. Vui lòng thử lại."))
+            .finally(() => {
+                setTimeout(() => {
+                    isSending = false;
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "XÁC NHẬN ĐĂNG KÝ";
+                }, 1500);
+            });
         });
 
-        // Hàm SHA-256 mã hóa gọn nhẹ
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        function showRegError(msg) {
+            errorMsg.innerText = msg;
+            errorMsg.style.display = "block";
         }
-       
+
+        /* 2. LOGIC DANH SÁCH ĐĂNG KÝ */
+        async function loadDataDS(forceReload = false) {
+            if (isLoadedDS && !forceReload) {
+                filterDataDS();
+                return;
+            }
+
+            const tbody = document.getElementById("tableBodyDS");
+            tbody.innerHTML = `<tr><td colspan="7" class="loading"><span class="material-icons" style="font-size: 32px; animation: spin 1s infinite linear;">sync</span><p>Đang tải dữ liệu...</p></td></tr>`;
+
+            try {
+                const response = await fetch(`${MAIN_SCRIPT_URL}?action=getRegistrations`);
+                const data = await response.json();
+                listDS = Array.isArray(data) ? data.reverse() : [];
+                isLoadedDS = true;
+                filterDataDS();
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="7" class="no-data" style="color:#ef4444;">Không thể tải dữ liệu. Bấm "Tải lại" để thử lại.</td></tr>`;
+            }
+        }
+
+        function renderTableDS(data) {
+            const tbody = document.getElementById("tableBodyDS");
+            tbody.innerHTML = "";
+            if(!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="no-data">Chưa có dữ liệu đăng ký.</td></tr>`;
+                document.getElementById("totalCountDS").innerText = "0";
+                document.getElementById("totalQtyDS").innerText = "0";
+                return;
+            }
+
+            let totalQty = 0;
+            data.forEach((item, index) => {
+                totalQty += parseInt(item.so_luong) || 0;
+                
+                // Kiểm tra ngày thi để áp dụng CSS
+                const dateClass = isPastDate(item.ngay_thi) ? "date-past" : "date-future";
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td style="text-align: center;"><strong>${index + 1}</strong></td>
+                    <td style="text-align: center;"><span class="badge-clb">${item.ma_clb || ''}</span></td>
+                    <td style="text-align: center;" class="${dateClass}">${formatDate(item.ngay_thi)}</td>
+                    <td style="text-align: center;">${formatTime(item.gio_thi)}</td>
+                    <td>${item.dia_diem || ''}</td>
+                    <td style="text-align: center; font-weight: bold; color: #2563eb;">${item.so_luong || 0}</td>
+                    <td style="text-align: center;"><a href="tel:${item.dien_thoai}" style="color: #059669; text-decoration: none;">${item.dien_thoai || ''}</a></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById("totalCountDS").innerText = data.length;
+            document.getElementById("totalQtyDS").innerText = totalQty;
+        }
+
+        function filterDataDS() {
+            const selectedMonth = document.getElementById("monthFilterDS").value;
+            const keyword = document.getElementById("searchInputDS").value.toLowerCase().trim();
+
+            const filtered = listDS.filter(item => {
+                let matchMonth = (selectedMonth === "all") || (getMonthFromDate(item.ngay_thi) === parseInt(selectedMonth));
+                let matchKeyword = !keyword || 
+                    (item.ma_clb || "").toLowerCase().includes(keyword) ||
+                    (item.dia_diem || "").toLowerCase().includes(keyword) ||
+                    (item.dien_thoai || "").toLowerCase().includes(keyword) ||
+                    formatDate(item.ngay_thi).includes(keyword);
+                return matchMonth && matchKeyword;
+            });
+            renderTableDS(filtered);
+        }
+
+        /* 3. LOGIC PHÂN CÔNG GSGK */
+        function formatPerson(text) {
+            if (!text) return '';
+            let str = String(text).trim();
+            const phoneMatch = str.match(/(0\d{9,10})/);
+            if (phoneMatch) {
+                const phone = phoneMatch[0];
+                let name = str.replace(phone, '').trim().replace(/[-–]$/, '').trim();
+                return `<span class="person-name">${name}</span><span class="phone-sub">${phone}</span>`;
+            }
+            return `<span class="person-name">${str}</span>`;
+        }
+
+        async function loadDataPC(forceReload = false) {
+            if (isLoadedPC && !forceReload) {
+                filterDataPC();
+                return;
+            }
+
+            const tbody = document.getElementById("tableBodyPC");
+            tbody.innerHTML = `<tr><td colspan="11" class="loading"><span class="material-icons" style="font-size: 32px; animation: spin 1s infinite linear;">sync</span><p>Đang tải dữ liệu...</p></td></tr>`;
+
+            try {
+                const response = await fetch(`${MAIN_SCRIPT_URL}?action=getGSGK`);
+                const data = await response.json();
+                listPC = Array.isArray(data) ? data.reverse() : [];
+                isLoadedPC = true;
+                filterDataPC();
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="11" class="no-data" style="color:#ef4444;">Không thể tải dữ liệu. Bấm "Tải lại" để thử lại.</td></tr>`;
+            }
+        }
+
+        function renderTablePC(data) {
+            const tbody = document.getElementById("tableBodyPC");
+            tbody.innerHTML = "";
+            if(!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="no-data">Chưa có dữ liệu phân công.</td></tr>`;
+                document.getElementById("totalCountPC").innerText = "0";
+                return;
+            }
+
+            data.forEach((item, index) => {
+                // Kiểm tra ngày thi để áp dụng CSS
+                const dateClass = isPastDate(item.ngay_thi) ? "date-past" : "date-future";
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td style="text-align: center;">${index + 1}</td>
+                    <td><span class="badge-clb">${item.ten_clb || ''}</span></td>
+                    <td style="text-align: center; white-space: nowrap;" class="${dateClass}">${formatDate(item.ngay_thi)}</td>
+                    <td style="text-align: center; white-space: nowrap;">${formatTime(item.gio_thi)}</td>
+                    <td class="col-person">${formatPerson(item.giam_sat)}</td>
+                    <td class="col-person">${formatPerson(item.giam_khao_1)}</td>
+                    <td class="col-person">${formatPerson(item.giam_khao_2)}</td>
+                    <td class="col-person">${formatPerson(item.giam_khao_3)}</td>
+                    <td class="col-person">${formatPerson(item.giam_khao_4)}</td>
+                    <td class="col-person">${formatPerson(item.giam_khao_5)}</td>
+                    <td class="col-person">${formatPerson(item.thu_ky_vtf)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById("totalCountPC").innerText = data.length;
+        }
+
+        function filterDataPC() {
+            const selectedMonth = document.getElementById("monthFilterPC").value;
+            const keyword = document.getElementById("searchInputPC").value.toLowerCase().trim();
+
+            const filtered = listPC.filter(item => {
+                let matchMonth = (selectedMonth === "all") || (getMonthFromDate(item.ngay_thi) === parseInt(selectedMonth));
+                let matchKeyword = !keyword || 
+                    (item.ten_clb || "").toLowerCase().includes(keyword) ||
+                    (item.giam_sat || "").toLowerCase().includes(keyword) ||
+                    (item.giam_khao_1 || "").toLowerCase().includes(keyword) ||
+                    (item.giam_khao_2 || "").toLowerCase().includes(keyword) ||
+                    (item.giam_khao_3 || "").toLowerCase().includes(keyword) ||
+                    (item.giam_khao_4 || "").toLowerCase().includes(keyword) ||
+                    (item.giam_khao_5 || "").toLowerCase().includes(keyword) ||
+                    (item.thu_ky_vtf || "").toLowerCase().includes(keyword) ||
+                    formatDate(item.ngay_thi).includes(keyword);
+                return matchMonth && matchKeyword;
+            });
+            renderTablePC(filtered);
+        }
     </script>
 </body>
 </html>
